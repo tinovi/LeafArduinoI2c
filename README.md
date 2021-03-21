@@ -1,4 +1,4 @@
-# Tinovi Leaf-I2C Leaf wetiness and Temperature i2c sensor Arduino library
+# Tinovi Leaf-I2C Leaf wetness and Temperature i2c sensor Arduino library
 
 ## Interfacing from Arduino
 **WARNING!!! device supports 2.6v-5v voltage levels**
