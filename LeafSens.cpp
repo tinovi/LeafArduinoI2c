@@ -9,21 +9,23 @@ LeafSens::LeafSens(){
   addr=0x61;
 }
 
-int LeafSens::init(int address, TwoWire *the_wire){
+int LeafSens::init(uint8_t address, TwoWire *the_wire){
   _wire = the_wire;
   addr = address;
   return 0;
 }
 
-int LeafSens::init(int address){
+int LeafSens::init(uint8_t address){
   _wire = &Wire;
   _wire->begin();
+  // _wire->setClock(100000L);
   addr = address;
   return 0;
 }
 
 
 bool LeafSens::i2cdelay(int size){
+  delay(1);
   int i=0;
   for (;_wire->available() < size && i<=size;i++) {
 	  delay(2);
@@ -49,7 +51,7 @@ int16_t LeafSens::getVal(byte reg){
   _wire->beginTransmission(addr); // transmit to device
   _wire->write(reg);              // sends one byte
   _wire->endTransmission();    // stop transmitting
- 
+  delay(10);
   _wire->requestFrom(addr, (uint8_t)2);
   int16_t ret=0;
   if(i2cdelay(2)){
@@ -65,7 +67,7 @@ uint32_t LeafSens::getVal32(byte reg){
   _wire->beginTransmission(addr); // transmit to device
   _wire->write(reg);              // sends one byte
   _wire->endTransmission();    // stop transmitting
-
+  delay(10);
   _wire->requestFrom(addr, (uint8_t)4);
   int16_t ret=0;
   if(i2cdelay(4)){
@@ -84,6 +86,7 @@ int LeafSens::setReg8(byte reg, byte val){
   _wire->write(reg);              // sends one byte
   _wire->write(val);              // sends one byte
   _wire->endTransmission();    // stop transmitting
+  delay(10);
   return getState();
 }
 
@@ -122,7 +125,7 @@ int LeafSens::newReading(){
   _wire->beginTransmission(addr); // transmit to device
   _wire->write(REG_READ_ST);              // sends one byte
   _wire->endTransmission();    // stop transmitting
-  delay(300);
+  delay(200); // let sensor read the data
   return getState();
 }
 
@@ -150,6 +153,7 @@ void LeafSens::getData(float readings[]){
   _wire->beginTransmission(addr); // transmit to device
   _wire->write(REG_DATA);              // sends one byte
   _wire->endTransmission();    // stop transmitting
+  delay(10);
   _wire->requestFrom(addr, (uint8_t)4);
   if(i2cdelay(4)){
 	  for (int k = 0; k < 2; k++){
@@ -157,18 +161,11 @@ void LeafSens::getData(float readings[]){
 		  byte *pointer = (byte *)&ret;
 		  pointer[0] = _wire->read();
 		  pointer[1] = _wire->read();
-		  switch (k) {
-        case 0:
-          readings[k] = ret / 100.0;
-          break;
-        case 1:
-          readings[k] = ret / 100.0;
-          break;
-      }
+      readings[k] = ret / 100.0;
 	  }
   }else{
 	  for (int k = 0; k < 2; k++){
-		readings[k] = 0.1;
+		  readings[k] = 0.1;
 	  }
   }
 }
@@ -177,6 +174,7 @@ void LeafSens::getRaw(byte data[]){
   _wire->beginTransmission(addr); // transmit to device
   _wire->write(REG_DATA);              // sends one byte
   _wire->endTransmission();    // stop transmitting
+  delay(10);
   _wire->requestFrom(addr, (uint8_t)4);
   if(i2cdelay(4)){
 	  for(int i = 0; i<4; i++){

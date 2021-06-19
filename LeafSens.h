@@ -27,8 +27,8 @@ class LeafSens
 {
 public:
   LeafSens();
-  int init(int address, TwoWire *the_wire);
-  int init(int address);
+  int init(uint8_t address, TwoWire *the_wire);
+  int init(uint8_t address);
   int newAddress(byte newAddr);
   int resetDefault();
   int calibrationAir();
